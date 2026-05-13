@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { adminAPI } from '../../services/api';
-import { Card, ProgressBar } from '../../components/UI';
-import { Users, CheckCircle, Clock, DollarSign, MessageSquare, TrendingUp } from 'lucide-react';
+import { Card, ProgressBar, Btn } from '../../components/UI';
+import { Users, CheckCircle, Clock, DollarSign, MessageSquare, TrendingUp, Download, FileDown } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 const DEPT_SHORT = {
@@ -16,17 +16,49 @@ export default function AdminOverview() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const res = await adminAPI.getStats();
-        setStats(res.data.stats);
-      } catch (err) {
-        console.error(err);
-      }
-      setLoading(false);
-    };
     fetchStats();
   }, []);
+
+  const fetchStats = async () => {
+    setLoading(true);
+    try {
+      const res = await adminAPI.getStats();
+      setStats(res.data.stats);
+    } catch (err) {
+      console.error(err);
+    }
+    setLoading(false);
+  };
+
+  const handleExport = async () => {
+    try {
+      const res = await adminAPI.getGraduationList();
+      const students = res.data.students;
+      
+      if (students.length === 0) {
+        alert('No students have fully cleared yet.');
+        return;
+      }
+
+      // Generate CSV
+      const headers = ['Matric Number', 'Full Name', 'Department', 'Faculty', 'Session'];
+      const rows = students.map(s => [s.user_id, s.full_name, s.department, s.faculty, s.session]);
+      const csvContent = [headers, ...rows].map(e => e.join(',')).join('\n');
+      
+      // Download
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `FULafia_Graduation_List_${new Date().getFullYear()}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error('Export error:', err);
+    }
+  };
 
   if (loading) {
     return (
@@ -65,9 +97,17 @@ export default function AdminOverview() {
         position: 'relative', overflow: 'hidden'
       }}>
         <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }} />
-        <p style={{ margin: '0 0 0.25rem', opacity: 0.8, fontSize: '0.8125rem' }}>System Administrator</p>
-        <h1 style={{ fontSize: '1.375rem', marginBottom: '0.25rem', color: 'white' }}>{user.fullName}</h1>
-        <p style={{ opacity: 0.7, margin: 0, fontSize: '0.8125rem' }}>System Administrator &bull; {user.department}</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div>
+            <p style={{ margin: '0 0 0.25rem', opacity: 0.8, fontSize: '0.8125rem' }}>System Administrator</p>
+            <h1 style={{ fontSize: '1.375rem', marginBottom: '0.25rem', color: 'white' }}>{user.fullName}</h1>
+            <p style={{ opacity: 0.7, margin: 0, fontSize: '0.8125rem' }}>System Administrator &bull; {user.department}</p>
+          </div>
+          <Btn onClick={handleExport} variant="secondary" style={{ background: 'white', color: 'var(--primary)', border: 'none', fontWeight: 600 }}>
+            <FileDown size={18} />
+            Export Graduation List (CSV)
+          </Btn>
+        </div>
       </div>
 
       {/* ═══ Stats Grid ═══ */}

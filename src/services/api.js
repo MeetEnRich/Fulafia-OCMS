@@ -49,6 +49,7 @@ export const adminAPI = {
   createUser: (data) => api.post('/users', data),
   updateUser: (userId, data) => api.put(`/users/${encodeURIComponent(userId)}`, data),
   resetPassword: (userId) => api.post(`/users/${encodeURIComponent(userId)}/reset-password`),
+  getGraduationList: () => api.get('/graduation-list'),
   getNotifications: () => api.get('/notifications'),
   markNotificationRead: (id) => api.put(`/notifications/${id}/read`),
   getCertificate: (studentId) => api.get(`/certificate/${encodeURIComponent(studentId)}`),

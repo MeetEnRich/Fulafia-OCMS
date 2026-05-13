@@ -184,10 +184,12 @@ export default function Certificate() {
                 <p style={{ fontSize: '0.4375rem', color: '#999', marginTop: '0.125rem' }}>Scan to verify</p>
               </div>
 
-              <div style={{ textAlign: 'center' }}>
-                <Award size={40} color="#C9A84C" style={{ opacity: 0.8 }} />
-                <p style={{ borderTop: '1px solid #333', paddingTop: '0.25rem', fontWeight: 'bold', fontSize: '0.6875rem' }}>Registrar</p>
-                <p style={{ fontSize: '0.5625rem', color: '#666' }}>Digitally Verified</p>
+              <div style={{ textAlign: 'center', position: 'relative' }}>
+                <div style={{ position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', marginBottom: '-5px' }}>
+                  <img src="/signature.png" alt="Signature" style={{ width: 80, height: 'auto', display: 'block', margin: '0 auto' }} />
+                </div>
+                <p style={{ borderTop: '1px solid #333', paddingTop: '0.25rem', fontWeight: 'bold', fontSize: '0.6875rem', marginBottom: 0 }}>Registrar</p>
+                <p style={{ fontSize: '0.5625rem', color: '#666', marginTop: '0.125rem' }}>Dr. Abubakar Sani</p>
               </div>
 
               <div style={{ textAlign: 'right' }}>

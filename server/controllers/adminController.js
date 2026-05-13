@@ -13,6 +13,41 @@ const REQUIRED_FEES = [
 ];
 
 /**
+ * GET /api/graduation-list
+ * Get all students who have completed ALL clearance and payments
+ */
+export function getGraduationList(req, res) {
+  // We need to find students who:
+  // 1. Have 7 clearance records with status 'cleared'
+  // 2. Have 4 payment records with status 'success'
+  // 3. Have bio_verified = 1
+  
+  const clearedStudents = db.prepare(`
+    SELECT u.user_id, u.full_name, u.department, s.faculty, s.session
+    FROM users u
+    JOIN students s ON u.user_id = s.user_id
+    WHERE s.bio_verified = 1
+    AND (
+      SELECT COUNT(*) 
+      FROM clearance_requests cr 
+      WHERE cr.student_id = u.user_id AND cr.status = 'cleared'
+    ) = ?
+    AND (
+      SELECT COUNT(*) 
+      FROM payments p 
+      WHERE p.student_id = u.user_id AND p.status = 'success' AND p.fee_type IN (?, ?, ?, ?)
+    ) = ?
+  `).all(
+    TOTAL_DEPARTMENTS, 
+    REQUIRED_FEES[0], REQUIRED_FEES[1], REQUIRED_FEES[2], REQUIRED_FEES[3],
+    REQUIRED_FEES.length
+  );
+
+  return res.json({ students: clearedStudents });
+}
+
+
+/**
  * GET /api/stats
  * Dashboard statistics for admin
  */

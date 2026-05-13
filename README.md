@@ -251,6 +251,7 @@ fulafia-ocms/
 | `GET/POST` | `/api/users`                    | Admin         |
 | `PUT`      | `/api/users/:id`                | Admin         |
 | `POST`     | `/api/users/:id/reset-password` | Admin         |
+| `GET`      | `/api/graduation-list`          | Admin         |
 | `GET`      | `/api/certificate/:studentId`   | Authenticated |
 
 ---
