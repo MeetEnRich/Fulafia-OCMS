@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { adminAPI } from '../../services/api';
 import { Card, ProgressBar } from '../../components/UI';
-import { Users, CheckCircle, Clock, DollarSign, TrendingUp, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import { Users, CheckCircle, Clock, DollarSign, MessageSquare, TrendingUp } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
-const PIE_COLORS = ['#059669', '#D97706', '#DC2626'];
+const DEPT_SHORT = {
+  bursary: 'Bursary', library: 'Library', department: 'Dept',
+  faculty: 'Faculty', clinic: 'Clinic', hostel: 'Hostel', student_affairs: 'S. Affairs'
+};
 
 export default function AdminOverview() {
   const { user } = useApp();
@@ -14,7 +16,7 @@ export default function AdminOverview() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchStats = async () => {
       try {
         const res = await adminAPI.getStats();
         setStats(res.data.stats);
@@ -23,144 +25,141 @@ export default function AdminOverview() {
       }
       setLoading(false);
     };
-    fetchData();
+    fetchStats();
   }, []);
 
-  if (loading) return (
-    <div>
-      <div className="skeleton" style={{ height: 100, borderRadius: 'var(--radius-xl)', marginBottom: '1.5rem' }} />
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4" style={{ marginBottom: '1.5rem' }}>
-        {[1,2,3,4].map(i => <div key={i} className="skeleton" style={{ height: 90, borderRadius: 'var(--radius-xl)' }} />)}
+  if (loading) {
+    return (
+      <div>
+        <div className="skeleton" style={{ height: 120, borderRadius: 'var(--radius-xl)', marginBottom: '1.5rem' }} />
+        <div className="grid gap-4 grid-cols-2 lg:grid-cols-4" style={{ marginBottom: '1.5rem' }}>
+          {[1,2,3,4].map(i => <div key={i} className="skeleton" style={{ height: 90, borderRadius: 'var(--radius-xl)' }} />)}
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 
-  const { totalStudents, fullyCleared, inProgress, deptStats, totalPayments } = stats || {};
-  const clearanceRate = totalStudents > 0 ? Math.round((fullyCleared / totalStudents) * 100) : 0;
+  if (!stats) return null;
 
-  const deptLabels = { bursary: 'Bursary', library: 'Library', hod: 'HOD', student_affairs: 'Student Affairs' };
-  const barData = (deptStats || []).map(d => ({
-    name: deptLabels[d.department] || d.department,
-    Cleared: d.cleared || 0,
-    Pending: d.pending || 0,
-    Rejected: d.rejected || 0,
+  const clearanceRate = stats.totalStudents > 0 ? Math.round((stats.fullyCleared / stats.totalStudents) * 100) : 0;
+
+  // Prepare chart data
+  const deptChartData = (stats.deptStats || []).map(d => ({
+    name: DEPT_SHORT[d.department] || d.department,
+    Cleared: d.cleared,
+    Pending: d.pending,
+    Rejected: d.rejected,
   }));
 
-  const overallPieData = [
-    { name: 'Cleared', value: fullyCleared || 0 },
-    { name: 'In Progress', value: inProgress || 0 },
+  const pieData = [
+    { name: 'Fully Cleared', value: stats.fullyCleared, color: '#1A5C2A' },
+    { name: 'In Progress', value: stats.inProgress, color: '#C9A84C' },
   ].filter(d => d.value > 0);
 
   return (
     <div>
-      {/* Welcome */}
+      {/* ═══ Welcome Banner ═══ */}
       <div style={{
         background: 'var(--primary-gradient)', borderRadius: 'var(--radius-xl)',
         padding: '1.75rem 2rem', color: 'white', marginBottom: '1.5rem',
         position: 'relative', overflow: 'hidden'
       }}>
         <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }} />
-        <p style={{ margin: '0 0 0.25rem', opacity: 0.8, fontSize: '0.8125rem' }}>Welcome back,</p>
+        <p style={{ margin: '0 0 0.25rem', opacity: 0.8, fontSize: '0.8125rem' }}>System Administrator</p>
         <h1 style={{ fontSize: '1.375rem', marginBottom: '0.25rem', color: 'white' }}>{user.fullName}</h1>
         <p style={{ opacity: 0.7, margin: 0, fontSize: '0.8125rem' }}>System Administrator &bull; {user.department}</p>
       </div>
 
-      {/* Stats Grid */}
+      {/* ═══ Stats Grid ═══ */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4" style={{ marginBottom: '1.5rem' }}>
         {[
-          { label: 'Total Students', value: totalStudents, icon: Users, bg: 'var(--info-bg)', color: 'var(--info)' },
-          { label: 'Fully Cleared', value: fullyCleared, icon: CheckCircle, bg: 'var(--success-bg)', color: 'var(--success)' },
-          { label: 'In Progress', value: inProgress, icon: Clock, bg: 'var(--warning-bg)', color: 'var(--warning)' },
-          { label: 'Revenue', value: `₦${(totalPayments || 0).toLocaleString()}`, icon: DollarSign, bg: 'var(--gold-light)', color: 'var(--gold)' },
+          { label: 'Total Students', value: stats.totalStudents, icon: Users, bg: 'var(--info-bg)', color: 'var(--info)' },
+          { label: 'Fully Cleared', value: stats.fullyCleared, icon: CheckCircle, bg: 'var(--success-bg)', color: 'var(--success)' },
+          { label: 'In Progress', value: stats.inProgress, icon: Clock, bg: 'var(--warning-bg)', color: 'var(--warning)' },
+          { label: 'Revenue', value: `₦${stats.totalPayments.toLocaleString()}`, icon: DollarSign, bg: 'var(--gold-light)', color: 'var(--gold)' },
         ].map(s => (
           <Card key={s.label} className="stat-card">
             <div className="stat-icon" style={{ background: s.bg, color: s.color }}><s.icon size={20} /></div>
             <div>
               <p className="text-muted text-sm" style={{ margin: 0, lineHeight: 1.2 }}>{s.label}</p>
-              <h3 style={{ fontSize: '1.375rem', margin: 0, lineHeight: 1 }}>{s.value}</h3>
+              <h3 style={{ fontSize: '1.5rem', margin: 0, lineHeight: 1 }}>{s.value}</h3>
             </div>
           </Card>
         ))}
       </div>
 
-      {/* Clearance Rate */}
+      {/* ═══ Clearance Rate ═══ */}
       <Card style={{ marginBottom: '1.5rem' }}>
         <div className="card-body">
           <div className="flex items-center justify-between" style={{ marginBottom: '0.75rem' }}>
             <div className="flex items-center" style={{ gap: '0.5rem' }}>
-              <TrendingUp size={16} color="var(--primary)" />
-              <span className="font-semibold text-sm">University Clearance Rate</span>
+              <TrendingUp size={18} color="var(--primary)" />
+              <h3 style={{ margin: 0, fontSize: '1rem', fontFamily: 'var(--font-body)' }}>University Clearance Rate</h3>
             </div>
-            <span style={{ fontWeight: 700, fontSize: '1.25rem', color: clearanceRate >= 50 ? 'var(--success)' : 'var(--warning)' }}>{clearanceRate}%</span>
+            <span style={{ fontSize: '1.25rem', fontWeight: 700, color: clearanceRate >= 50 ? 'var(--success)' : 'var(--warning)' }}>{clearanceRate}%</span>
           </div>
-          <ProgressBar value={clearanceRate} color={clearanceRate >= 50 ? 'var(--success)' : undefined} />
-          <p className="text-xs text-muted" style={{ margin: '0.5rem 0 0' }}>{fullyCleared} of {totalStudents} students have completed all clearance requirements.</p>
+          <ProgressBar value={clearanceRate} color={clearanceRate >= 50 ? 'var(--success)' : 'var(--warning)'} />
+          <p className="text-muted text-sm" style={{ marginTop: '0.5rem' }}>
+            {stats.fullyCleared} of {stats.totalStudents} students have completed all {stats.totalDepartments || 7} clearance requirements.
+          </p>
         </div>
       </Card>
 
-      {/* Charts Row */}
-      <div className="grid gap-4 md:grid-cols-2" style={{ marginBottom: '1.5rem' }}>
-        {/* Department Performance Bar Chart */}
+      {/* ═══ Charts ═══ */}
+      <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <div className="card-header">
             <h3 className="card-title" style={{ fontFamily: 'var(--font-body)' }}>Department Performance</h3>
           </div>
-          <div className="card-body">
-            <div className="chart-container">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={barData} barGap={2} barCategoryGap="20%">
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                  <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--text-muted)' }} axisLine={{ stroke: 'var(--border)' }} />
-                  <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
-                  <Tooltip contentStyle={{ borderRadius: 'var(--radius)', border: '1px solid var(--border)', fontSize: '0.8125rem' }} />
-                  <Bar dataKey="Cleared" fill="#059669" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="Pending" fill="#D97706" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="Rejected" fill="#DC2626" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+          <div className="card-body" style={{ height: 320 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={deptChartData} barCategoryGap="20%">
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                <YAxis tick={{ fontSize: 11 }} />
+                <Tooltip />
+                <Legend wrapperStyle={{ fontSize: '0.75rem' }} />
+                <Bar dataKey="Cleared" fill="#1A5C2A" radius={[4,4,0,0]} />
+                <Bar dataKey="Pending" fill="#C9A84C" radius={[4,4,0,0]} />
+                <Bar dataKey="Rejected" fill="#DC2626" radius={[4,4,0,0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </Card>
 
-        {/* Overall Distribution Pie */}
         <Card>
           <div className="card-header">
             <h3 className="card-title" style={{ fontFamily: 'var(--font-body)' }}>Clearance Distribution</h3>
           </div>
-          <div className="card-body">
-            <div className="chart-container">
+          <div className="card-body" style={{ height: 320 }}>
+            {pieData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={overallPieData} cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={4} dataKey="value" stroke="none">
-                    {overallPieData.map((_, idx) => <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />)}
+                  <Pie data={pieData} cx="50%" cy="50%" innerRadius={55} outerRadius={95} paddingAngle={3} dataKey="value" stroke="none">
+                    {pieData.map((d, i) => <Cell key={i} fill={d.color} />)}
                   </Pie>
-                  <Tooltip contentStyle={{ borderRadius: 'var(--radius)', border: '1px solid var(--border)', fontSize: '0.8125rem' }} />
-                  <Legend iconSize={8} wrapperStyle={{ fontSize: '0.75rem' }} />
+                  <Tooltip formatter={(val, name) => [`${val} students`, name]} />
+                  <Legend wrapperStyle={{ fontSize: '0.75rem' }} />
                 </PieChart>
               </ResponsiveContainer>
-            </div>
+            ) : (
+              <div className="flex items-center justify-center" style={{ height: '100%', color: 'var(--text-muted)' }}>No data</div>
+            )}
           </div>
         </Card>
       </div>
 
-      {/* Quick Links */}
-      <h3 style={{ marginBottom: '0.75rem', fontSize: '1rem', fontFamily: 'var(--font-body)', fontWeight: 600 }}>Quick Links</h3>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {[
-          { to: '/admin/users', label: 'Manage Users', desc: `${totalStudents} users registered`, color: 'var(--primary)' },
-          { to: '/admin/audit', label: 'View Audit Log', desc: 'Review all system activities', color: 'var(--info)' },
-        ].map(link => (
-          <Link key={link.label} to={link.to} style={{ textDecoration: 'none' }}>
-            <Card interactive style={{ padding: '1.25rem' }}>
-              <div className="flex items-center justify-between" style={{ marginBottom: '0.25rem' }}>
-                <p style={{ margin: 0, fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-primary)' }}>{link.label}</p>
-                <ArrowRight size={14} color="var(--text-muted)" />
-              </div>
-              <p className="text-xs text-muted" style={{ margin: 0 }}>{link.desc}</p>
-            </Card>
-          </Link>
-        ))}
-      </div>
+      {/* ═══ System Info Footer ═══ */}
+      {stats.openTickets > 0 && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '0.75rem',
+          padding: '1rem 1.25rem', background: 'var(--info-bg)', border: '1px solid rgba(37,99,235,0.2)',
+          borderRadius: 'var(--radius)', marginTop: '1.5rem', fontSize: '0.8125rem'
+        }}>
+          <MessageSquare size={18} color="var(--info)" />
+          <span><strong>{stats.openTickets} open support ticket{stats.openTickets !== 1 ? 's' : ''}</strong> across all departments.</span>
+        </div>
+      )}
     </div>
   );
 }

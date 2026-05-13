@@ -36,7 +36,7 @@ export function ToastContainer() {
 /* ═══════════════════════════════════════════
    HEADER
    ═══════════════════════════════════════════ */
-export function Header({ onMenuToggle, isMobile }) {
+export function Header({ onMenuToggle, onToggleCollapse, isMobile }) {
   const { user, logout, notifications, markNotificationRead } = useApp();
   const [showNotifs, setShowNotifs] = useState(false);
   const unread = notifications.filter(n => !n.is_read).length;
@@ -50,12 +50,15 @@ export function Header({ onMenuToggle, isMobile }) {
       padding: '0 1.5rem', position: 'sticky', top: 0, zIndex: 40,
     }}>
       <div className="flex items-center" style={{ gap: '1rem' }}>
-        {isMobile && (
-          <button onClick={onMenuToggle} style={{ color: 'var(--text-secondary)', padding: '0.375rem' }}><Menu size={22} /></button>
-        )}
-        {!isMobile && (
-          <h2 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0, fontFamily: 'var(--font-body)' }}>{portalTitle}</h2>
-        )}
+        <button 
+          onClick={isMobile ? onMenuToggle : onToggleCollapse} 
+          style={{ color: 'var(--text-secondary)', padding: '0.375rem' }}
+        >
+          <Menu size={22} />
+        </button>
+        <h2 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0, fontFamily: 'var(--font-body)' }}>
+          {!isMobile && portalTitle}
+        </h2>
       </div>
 
       <div className="flex items-center" style={{ gap: '0.75rem' }}>
@@ -121,12 +124,12 @@ export function Header({ onMenuToggle, isMobile }) {
             width: 32, height: 32, borderRadius: '50%', background: 'var(--primary-soft)', color: 'var(--primary)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.75rem'
           }}>
-            {user?.fullName?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+            {user?.fullName?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || '??'}
           </div>
           {!isMobile && (
             <div>
-              <p style={{ margin: 0, fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.2 }}>{user?.fullName}</p>
-              <p style={{ margin: 0, fontSize: '0.6875rem', color: 'var(--text-muted)' }}>{user?.department}</p>
+              <p style={{ margin: 0, fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.2 }} className="truncate max-w-[150px]">{user?.fullName}</p>
+              <p style={{ margin: 0, fontSize: '0.6875rem', color: 'var(--text-muted)' }}>{user?.role?.replace('_', ' ')}</p>
             </div>
           )}
         </div>

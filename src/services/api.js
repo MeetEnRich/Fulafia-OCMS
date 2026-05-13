@@ -27,12 +27,19 @@ export const clearanceAPI = {
   getPending: () => api.get('/clearance/pending'),
   updateClearance: (dept, payload) => api.put(`/clearance/${dept}`, payload),
   applyForClearance: () => api.post('/clearance/apply'),
+  bulkApprove: (payload) => api.post('/clearance/bulk-approve', payload),
 };
 
 export const paymentAPI = {
   makePayment: (payload) => api.post('/payments', payload),
   getPayments: () => api.get('/payments'),
   getStudentPayments: (studentId) => api.get(`/payments/student/${encodeURIComponent(studentId)}`),
+};
+
+export const ticketAPI = {
+  create: (data) => api.post('/tickets', data),
+  getTickets: () => api.get('/tickets'),
+  reply: (id, reply) => api.put(`/tickets/${id}/reply`, { reply }),
 };
 
 export const adminAPI = {
@@ -45,6 +52,7 @@ export const adminAPI = {
   getNotifications: () => api.get('/notifications'),
   markNotificationRead: (id) => api.put(`/notifications/${id}/read`),
   getCertificate: (studentId) => api.get(`/certificate/${encodeURIComponent(studentId)}`),
+  verifyBio: (userId, data) => api.put(`/students/${encodeURIComponent(userId)}/verify-bio`, data),
 };
 
 export default api;

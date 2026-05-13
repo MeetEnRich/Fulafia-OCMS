@@ -99,10 +99,14 @@ export default function LoginPage() {
                 Demo Accounts
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center' }}>
-                <button onClick={() => handleDemoLogin('2021/CP/CSC/0076', 'student123')} className="badge badge--info" style={{ cursor: 'pointer', border: '1px solid var(--info)' }}>Student 1 (Fresh)</button>
-                <button onClick={() => handleDemoLogin('2021/ENG/EEE/0043', 'student123')} className="badge badge--success" style={{ cursor: 'pointer', border: '1px solid var(--success)' }}>Student 3 (Cleared)</button>
+                <button onClick={() => handleDemoLogin('2021/CP/CSC/0076', 'student123')} className="badge badge--info" style={{ cursor: 'pointer', border: '1px solid var(--info)' }}>Student</button>
+                <button onClick={() => handleDemoLogin('2021/ENG/EEE/0043', 'student123')} className="badge badge--success" style={{ cursor: 'pointer', border: '1px solid var(--success)' }}>Cleared Student</button>
                 <button onClick={() => handleDemoLogin('BURS001', 'staff123')} className="badge badge--pending" style={{ cursor: 'pointer', border: '1px solid var(--warning)' }}>Bursary</button>
                 <button onClick={() => handleDemoLogin('LIB001', 'staff123')} className="badge badge--pending" style={{ cursor: 'pointer', border: '1px solid var(--warning)' }}>Library</button>
+                <button onClick={() => handleDemoLogin('DEPT001', 'staff123')} className="badge badge--pending" style={{ cursor: 'pointer', border: '1px solid var(--warning)' }}>Department</button>
+                <button onClick={() => handleDemoLogin('FAC001', 'staff123')} className="badge badge--pending" style={{ cursor: 'pointer', border: '1px solid var(--warning)' }}>Faculty</button>
+                <button onClick={() => handleDemoLogin('CLN001', 'staff123')} className="badge badge--pending" style={{ cursor: 'pointer', border: '1px solid var(--warning)' }}>Clinic</button>
+                <button onClick={() => handleDemoLogin('HST001', 'staff123')} className="badge badge--pending" style={{ cursor: 'pointer', border: '1px solid var(--warning)' }}>Hostel</button>
                 <button onClick={() => handleDemoLogin('ADMIN001', 'admin123')} className="badge badge--rejected" style={{ cursor: 'pointer', border: '1px solid var(--danger)' }}>Admin</button>
               </div>
             </div>

@@ -8,7 +8,10 @@ const ROLE_OPTIONS = [
   { value: 'student', label: 'Student' },
   { value: 'bursary', label: 'Bursary Officer' },
   { value: 'library', label: 'Library Officer' },
-  { value: 'hod', label: 'HOD' },
+  { value: 'department', label: 'Department Officer' },
+  { value: 'faculty', label: 'Faculty Officer' },
+  { value: 'clinic', label: 'Medical Officer (Clinic)' },
+  { value: 'hostel', label: 'Hall Warden (Hostel)' },
   { value: 'student_affairs', label: 'Student Affairs' },
   { value: 'admin', label: 'Administrator' },
 ];

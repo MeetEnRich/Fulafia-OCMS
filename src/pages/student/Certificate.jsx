@@ -53,12 +53,18 @@ export default function Certificate() {
   );
 
   if (error) {
+    const isBioError = error.includes('bio-data') || error.includes('bio_verified') || error === 'You must verify your bio-data before downloading your certificate.';
     return (
       <Card style={{ maxWidth: 500, margin: '3rem auto', textAlign: 'center' }}>
         <div className="card-body" style={{ padding: '3rem 2rem' }}>
-          <AlertCircle size={48} color="var(--warning)" style={{ marginBottom: '1rem' }} />
-          <h2 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Certificate Not Available</h2>
-          <p className="text-secondary text-sm" style={{ maxWidth: 360, margin: '0 auto' }}>{error}</p>
+          <AlertCircle size={48} color={isBioError ? 'var(--gold)' : 'var(--warning)'} style={{ marginBottom: '1rem' }} />
+          <h2 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>
+            {isBioError ? 'Bio-Data Verification Required' : 'Certificate Not Available'}
+          </h2>
+          <p className="text-secondary text-sm" style={{ maxWidth: 360, margin: '0 auto 1rem' }}>{error}</p>
+          {isBioError && (
+            <a href="/student/bio-verification" className="btn btn--gold">Verify Bio-Data</a>
+          )}
         </div>
       </Card>
     );

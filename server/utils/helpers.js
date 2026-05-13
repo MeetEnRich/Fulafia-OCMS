@@ -34,13 +34,42 @@ export function formatDate(date) {
 export const ROLE_LABELS = {
   bursary: 'Bursary Department',
   library: 'University Library',
-  hod: 'Department / Faculty (HOD)',
+  department: 'Department',
+  faculty: 'Faculty',
+  clinic: 'University Clinic',
+  hostel: 'Hostel Management',
   student_affairs: 'Student Affairs',
   admin: 'System Administrator',
   student: 'Student',
 };
 
 /**
- * Departments involved in clearance
+ * Departments involved in clearance (ordered by flow)
  */
-export const CLEARANCE_DEPARTMENTS = ['bursary', 'library', 'hod', 'student_affairs'];
+export const CLEARANCE_DEPARTMENTS = [
+  'bursary',
+  'library',
+  'department',
+  'faculty',
+  'clinic',
+  'hostel',
+  'student_affairs',
+];
+
+/**
+ * Map department key to staff user ID prefix for notifications
+ */
+export const DEPT_STAFF_MAP = {
+  bursary: 'BURS001',
+  library: 'LIB001',
+  department: 'DEPT001',
+  faculty: 'FAC001',
+  clinic: 'CLN001',
+  hostel: 'HST001',
+  student_affairs: 'SA001',
+};
+
+/**
+ * Total number of clearance departments
+ */
+export const TOTAL_DEPARTMENTS = CLEARANCE_DEPARTMENTS.length;

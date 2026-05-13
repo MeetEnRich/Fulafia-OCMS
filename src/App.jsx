@@ -4,12 +4,11 @@ import Layout from './components/Layout';
 import LoginPage from './pages/LoginPage';
 import NotFound from './pages/NotFound';
 
-// We'll import pages dynamically or directly when created.
-// For now we'll setup the routing structure.
 import StudentOverview from './pages/student/Overview';
 import PaymentPage from './pages/student/Payment';
 import ClearancePage from './pages/student/Clearance';
 import CertificatePage from './pages/student/Certificate';
+import BioVerification from './pages/student/BioVerification';
 
 import StaffOverview from './pages/staff/Overview';
 import PendingRequests from './pages/staff/PendingRequests';
@@ -18,6 +17,8 @@ import StaffHistory from './pages/staff/History';
 import AdminOverview from './pages/admin/Overview';
 import AuditLog from './pages/admin/AuditLog';
 import UserManagement from './pages/admin/UserManagement';
+
+const STAFF_ROLES = ['bursary', 'library', 'department', 'faculty', 'clinic', 'hostel', 'student_affairs'];
 
 function ProtectedRoute({ children, allowedRoles }) {
   const { user, loading } = useApp();
@@ -54,11 +55,12 @@ export default function App() {
           <Route path="student/payment" element={<ProtectedRoute allowedRoles={['student']}><PaymentPage /></ProtectedRoute>} />
           <Route path="student/clearance" element={<ProtectedRoute allowedRoles={['student']}><ClearancePage /></ProtectedRoute>} />
           <Route path="student/certificate" element={<ProtectedRoute allowedRoles={['student']}><CertificatePage /></ProtectedRoute>} />
+          <Route path="student/bio-verification" element={<ProtectedRoute allowedRoles={['student']}><BioVerification /></ProtectedRoute>} />
 
           {/* Staff Routes */}
-          <Route path="staff/overview" element={<ProtectedRoute allowedRoles={['bursary', 'library', 'hod', 'student_affairs']}><StaffOverview /></ProtectedRoute>} />
-          <Route path="staff/pending" element={<ProtectedRoute allowedRoles={['bursary', 'library', 'hod', 'student_affairs']}><PendingRequests /></ProtectedRoute>} />
-          <Route path="staff/history" element={<ProtectedRoute allowedRoles={['bursary', 'library', 'hod', 'student_affairs']}><StaffHistory /></ProtectedRoute>} />
+          <Route path="staff/overview" element={<ProtectedRoute allowedRoles={STAFF_ROLES}><StaffOverview /></ProtectedRoute>} />
+          <Route path="staff/pending" element={<ProtectedRoute allowedRoles={STAFF_ROLES}><PendingRequests /></ProtectedRoute>} />
+          <Route path="staff/history" element={<ProtectedRoute allowedRoles={STAFF_ROLES}><StaffHistory /></ProtectedRoute>} />
 
           {/* Admin Routes */}
           <Route path="admin/overview" element={<ProtectedRoute allowedRoles={['admin']}><AdminOverview /></ProtectedRoute>} />

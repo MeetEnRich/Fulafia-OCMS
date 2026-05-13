@@ -1,4 +1,5 @@
 import db from '../config/db.js';
+import { TOTAL_DEPARTMENTS } from '../utils/helpers.js';
 
 /**
  * GET /api/students
@@ -6,7 +7,7 @@ import db from '../config/db.js';
  */
 export function listStudents(req, res) {
   const students = db.prepare(`
-    SELECT u.user_id, u.full_name, u.department, s.faculty, s.level, s.session
+    SELECT u.user_id, u.full_name, u.department, u.photo_url, s.faculty, s.level, s.session, s.bio_verified
     FROM users u
     JOIN students s ON u.user_id = s.user_id
     WHERE u.role = 'student'
@@ -28,7 +29,7 @@ export function listStudents(req, res) {
       clearances,
       paymentCount: payments.count,
       clearedCount: clearances.filter(c => c.status === 'cleared').length,
-      totalDepts: 4,
+      totalDepts: TOTAL_DEPARTMENTS,
     };
   });
 
@@ -43,7 +44,8 @@ export function getStudent(req, res) {
   const { userId } = req.params;
 
   const user = db.prepare(`
-    SELECT u.user_id, u.full_name, u.department, s.faculty, s.level, s.session
+    SELECT u.user_id, u.full_name, u.department, u.photo_url,
+           s.faculty, s.level, s.session, s.bio_verified, s.phone_number, s.address
     FROM users u
     JOIN students s ON u.user_id = s.user_id
     WHERE u.user_id = ? AND u.role = 'student'
@@ -61,5 +63,5 @@ export function getStudent(req, res) {
     'SELECT reference_no, fee_type, amount, card_last_four, status, paid_at FROM payments WHERE student_id = ? ORDER BY paid_at DESC'
   ).all(userId);
 
-  return res.json({ student: { ...user, clearances, payments } });
+  return res.json({ student: { ...user, clearances, payments, totalDepts: TOTAL_DEPARTMENTS } });
 }

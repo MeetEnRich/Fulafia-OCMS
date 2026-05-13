@@ -1,5 +1,5 @@
 import db from '../config/db.js';
-import { CLEARANCE_DEPARTMENTS, ROLE_LABELS } from '../utils/helpers.js';
+import { CLEARANCE_DEPARTMENTS, ROLE_LABELS, DEPT_STAFF_MAP, TOTAL_DEPARTMENTS } from '../utils/helpers.js';
 
 /**
  * GET /api/clearance
@@ -15,9 +15,12 @@ export function getMyClearance(req, res) {
     ORDER BY CASE cr.department
       WHEN 'bursary' THEN 1
       WHEN 'library' THEN 2
-      WHEN 'hod' THEN 3
-      WHEN 'student_affairs' THEN 4
-      ELSE 5
+      WHEN 'department' THEN 3
+      WHEN 'faculty' THEN 4
+      WHEN 'clinic' THEN 5
+      WHEN 'hostel' THEN 6
+      WHEN 'student_affairs' THEN 7
+      ELSE 8
     END
   `).all(req.user.user_id);
 
@@ -27,7 +30,7 @@ export function getMyClearance(req, res) {
 
 /**
  * POST /api/clearance/apply
- * Student initiates clearance process — creates pending rows for all departments
+ * Student initiates clearance process — creates pending rows for all 7 departments
  */
 export function applyForClearance(req, res) {
   const studentId = req.user.user_id;
@@ -45,10 +48,9 @@ export function applyForClearance(req, res) {
   CLEARANCE_DEPARTMENTS.forEach(dept => insertClearance.run(studentId, dept, 'pending'));
 
   // Notify each department officer
-  const staffMap = { bursary: 'BURS001', library: 'LIB001', hod: 'HOD001', student_affairs: 'SA001' };
   const insertNotif = db.prepare('INSERT INTO notifications (user_id, message, type) VALUES (?, ?, ?)');
   CLEARANCE_DEPARTMENTS.forEach(dept => {
-    const staffId = staffMap[dept];
+    const staffId = DEPT_STAFF_MAP[dept];
     if (staffId) {
       insertNotif.run(staffId, `New clearance request from ${req.user.full_name} (${studentId}).`, 'info');
     }
@@ -60,6 +62,47 @@ export function applyForClearance(req, res) {
   ).run(studentId, 'CLEARANCE_APPLIED', studentId, 'Student initiated clearance process');
 
   return res.json({ message: 'Clearance application submitted successfully.' });
+}
+
+/**
+ * POST /api/clearance/bulk-approve
+ * Staff approves multiple students at once
+ */
+export function bulkApprove(req, res) {
+  const { studentIds, comment } = req.body;
+  const staffRole = req.user.role;
+
+  if (!CLEARANCE_DEPARTMENTS.includes(staffRole)) {
+    return res.status(403).json({ error: 'Not a departmental officer' });
+  }
+
+  if (!Array.isArray(studentIds) || studentIds.length === 0) {
+    return res.status(400).json({ error: 'No students selected.' });
+  }
+
+  let approved = 0;
+  const updateStmt = db.prepare(`
+    UPDATE clearance_requests
+    SET status = 'cleared', comment = ?, reviewed_by = ?, reviewed_at = datetime('now')
+    WHERE student_id = ? AND department = ? AND status = 'pending'
+  `);
+  const insertNotif = db.prepare('INSERT INTO notifications (user_id, message, type) VALUES (?, ?, ?)');
+  const insertAudit = db.prepare(
+    'INSERT INTO audit_log (actor_id, action, target_student, department, details) VALUES (?, ?, ?, ?, ?)'
+  );
+
+  const deptLabel = ROLE_LABELS[staffRole] || staffRole;
+
+  studentIds.forEach(sid => {
+    const result = updateStmt.run(comment || 'Bulk approved.', req.user.user_id, sid, staffRole);
+    if (result.changes > 0) {
+      approved++;
+      insertNotif.run(sid, `Your ${deptLabel} clearance has been approved by ${req.user.full_name}.`, 'success');
+      insertAudit.run(req.user.user_id, 'CLEARANCE_APPROVED', sid, staffRole, comment || 'Bulk approved.');
+    }
+  });
+
+  return res.json({ message: `${approved} student(s) approved successfully.` });
 }
 
 /**

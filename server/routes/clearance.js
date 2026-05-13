@@ -1,6 +1,8 @@
 import { Router } from 'express';
-import { getMyClearance, applyForClearance, getPendingRequests, updateClearance } from '../controllers/clearanceController.js';
+import { getMyClearance, applyForClearance, getPendingRequests, updateClearance, bulkApprove } from '../controllers/clearanceController.js';
 import { authenticate, authorize } from '../middleware/auth.js';
+
+const STAFF_ROLES = ['bursary', 'library', 'department', 'faculty', 'clinic', 'hostel', 'student_affairs'];
 
 const router = Router();
 
@@ -11,9 +13,12 @@ router.get('/', authenticate, authorize('student'), getMyClearance);
 router.post('/apply', authenticate, authorize('student'), applyForClearance);
 
 // Staff gets pending requests for their department
-router.get('/pending', authenticate, authorize('bursary', 'library', 'hod', 'student_affairs'), getPendingRequests);
+router.get('/pending', authenticate, authorize(...STAFF_ROLES), getPendingRequests);
+
+// Staff bulk approves students
+router.post('/bulk-approve', authenticate, authorize(...STAFF_ROLES), bulkApprove);
 
 // Staff approves/rejects clearance
-router.put('/:dept', authenticate, authorize('bursary', 'library', 'hod', 'student_affairs'), updateClearance);
+router.put('/:dept', authenticate, authorize(...STAFF_ROLES), updateClearance);
 
 export default router;

@@ -6,6 +6,7 @@ import { Header, ToastContainer } from './UI';
 export default function Layout() {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -18,9 +19,13 @@ export default function Layout() {
 
   return (
     <div className="app-layout">
-      <Sidebar isOpen={sidebarOpen} isMobile={isMobile} onClose={() => setSidebarOpen(false)} />
+      <Sidebar isOpen={sidebarOpen} isMobile={isMobile} isCollapsed={isCollapsed} onClose={() => setSidebarOpen(false)} />
       <div className="main-content">
-        <Header isMobile={isMobile} onMenuToggle={() => setSidebarOpen(true)} />
+        <Header 
+          isMobile={isMobile} 
+          onMenuToggle={() => setSidebarOpen(true)} 
+          onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
+        />
         <main className="page-container animate-fade">
           <Outlet />
         </main>

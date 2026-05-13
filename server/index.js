@@ -14,6 +14,7 @@ import studentRoutes from './routes/students.js';
 import clearanceRoutes from './routes/clearance.js';
 import paymentRoutes from './routes/payments.js';
 import adminRoutes from './routes/admin.js';
+import ticketRoutes from './routes/tickets.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -30,6 +31,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/clearance', clearanceRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/tickets', ticketRoutes);
 app.use('/api', adminRoutes);
 
 // Health check

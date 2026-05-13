@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { studentAPI, clearanceAPI, paymentAPI } from '../../services/api';
 import { Card, ProgressBar, Skeleton, EmptyState } from '../../components/UI';
-import { CheckCircle, Clock, XCircle, CreditCard, ArrowRight, Award, FileText, ClipboardList, AlertTriangle, Megaphone } from 'lucide-react';
+import { CheckCircle, Clock, XCircle, CreditCard, ArrowRight, Award, FileText, ClipboardList, AlertTriangle, Megaphone, UserCheck, MessageSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const FEE_TYPES = ['Convocation Fee', 'Library Processing Fee', 'Alumni Development Levy', 'Transcript Fee'];
+const TOTAL_DEPTS = 7;
+const FEE_TYPES = ['Convocation Fee', 'Library Processing Fee', 'Alumni Development Levy', 'Transcript Fee', 'Alumni Association Fee'];
 
 export default function Overview() {
   const { user, showToast } = useApp();
@@ -34,7 +35,7 @@ export default function Overview() {
     setApplying(true);
     try {
       await clearanceAPI.applyForClearance();
-      showToast('Your clearance application has been submitted to all departments!', 'success', 'Application Submitted');
+      showToast('Your clearance application has been submitted to all 7 departments!', 'success', 'Application Submitted');
       fetchData();
     } catch (err) {
       showToast(err.response?.data?.error || 'Failed to apply', 'error');
@@ -55,16 +56,21 @@ export default function Overview() {
 
   const clearances = data?.clearances || [];
   const payments = data?.payments || [];
+  const bioVerified = data?.bio_verified;
   const clearedCount = clearances.filter(c => c.status === 'cleared').length;
   const pendingCount = clearances.filter(c => c.status === 'pending').length;
   const rejectedCount = clearances.filter(c => c.status === 'rejected').length;
-  const progressPercent = clearances.length > 0 ? Math.round((clearedCount / 4) * 100) : 0;
+  const progressPercent = clearances.length > 0 ? Math.round((clearedCount / TOTAL_DEPTS) * 100) : 0;
   const totalPaid = payments.filter(p => p.status === 'success').reduce((sum, p) => sum + p.amount, 0);
-  const totalRequired = 25000; // Sum of all fees
+  const totalRequired = 35000; // Sum of all 5 fees
   const paidFeeTypes = payments.filter(p => p.status === 'success').map(p => p.fee_type);
   const unpaidFees = FEE_TYPES.filter(f => !paidFeeTypes.includes(f));
+  const allCleared = clearedCount === TOTAL_DEPTS;
 
-  const deptLabels = { bursary: 'Bursary', library: 'Library', hod: 'Department (HOD)', student_affairs: 'Student Affairs' };
+  const deptLabels = {
+    bursary: 'Bursary', library: 'Library', department: 'Department',
+    faculty: 'Faculty', clinic: 'Clinic', hostel: 'Hostel', student_affairs: 'Student Affairs'
+  };
 
   return (
     <div>
@@ -75,10 +81,8 @@ export default function Overview() {
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         flexWrap: 'wrap', gap: '1.5rem', position: 'relative', overflow: 'hidden'
       }}>
-        {/* Decorative circles */}
         <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }} />
         <div style={{ position: 'absolute', bottom: -20, right: 60, width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,0.03)' }} />
-
         <div style={{ position: 'relative', zIndex: 1 }}>
           <p style={{ margin: '0 0 0.25rem', opacity: 0.8, fontSize: '0.8125rem' }}>Welcome back,</p>
           <h1 style={{ fontSize: '1.375rem', marginBottom: '0.375rem', color: 'white' }}>{user.fullName}</h1>
@@ -86,12 +90,10 @@ export default function Overview() {
             {user.userId} &bull; {user.department} &bull; {user.level}L &bull; {user.session || '2024/2025'} Session
           </p>
         </div>
-
-        {/* Progress Ring */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', position: 'relative', zIndex: 1 }}>
           <div style={{ textAlign: 'right' }}>
             <p style={{ margin: 0, fontWeight: 600, fontSize: '0.875rem' }}>Clearance</p>
-            <p style={{ margin: 0, opacity: 0.7, fontSize: '0.8125rem' }}>{clearedCount}/4 Depts</p>
+            <p style={{ margin: 0, opacity: 0.7, fontSize: '0.8125rem' }}>{clearedCount}/{TOTAL_DEPTS} Depts</p>
           </div>
           <div style={{ position: 'relative', width: 64, height: 64 }}>
             <svg viewBox="0 0 36 36" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
@@ -105,6 +107,24 @@ export default function Overview() {
         </div>
       </div>
 
+      {/* ═══ Bio-Data Verification Alert ═══ */}
+      {allCleared && !bioVerified && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '0.75rem',
+          padding: '1rem 1.25rem', background: 'var(--gold-light)', border: '1px solid rgba(201,168,76,0.3)',
+          borderRadius: 'var(--radius)', marginBottom: '1.5rem'
+        }}>
+          <UserCheck size={20} color="var(--gold)" style={{ flexShrink: 0 }} />
+          <div style={{ flex: 1 }}>
+            <p style={{ margin: 0, fontWeight: 600, fontSize: '0.875rem', color: 'var(--gold)' }}>Action Required: Verify Bio-Data</p>
+            <p style={{ margin: '0.125rem 0 0', fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
+              All departments have cleared you! Please verify your graduation details to unlock your certificate.
+            </p>
+          </div>
+          <Link to="/student/bio-verification"><button className="btn btn--gold btn--sm">Verify Now</button></Link>
+        </div>
+      )}
+
       {/* ═══ Apply for Clearance CTA (if not applied) ═══ */}
       {!hasApplied && (
         <Card style={{ marginBottom: '1.5rem', border: '2px dashed var(--gold)', background: 'var(--gold-light)' }}>
@@ -112,10 +132,10 @@ export default function Overview() {
             <ClipboardList size={40} color="var(--gold)" style={{ marginBottom: '0.75rem' }} />
             <h3 style={{ fontSize: '1.125rem', marginBottom: '0.5rem' }}>Apply for Clearance</h3>
             <p className="text-secondary text-sm" style={{ maxWidth: 480, margin: '0 auto 1rem' }}>
-              Before applying, ensure you have paid all required fees, returned library books, submitted your project, and returned your student ID card.
+              Your clearance request will be sent to all 7 departments. Ensure you have completed all requirements before applying.
             </p>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '1.25rem' }}>
-              {['Paid all fees', 'Returned library books', 'Submitted project', 'Returned ID card'].map(item => (
+              {['Paid all fees', 'Returned library books', 'Submitted project', 'Medical check-up', 'Returned hostel key', 'Returned ID card'].map(item => (
                 <span key={item} className="badge badge--info" style={{ padding: '0.375rem 0.75rem', fontSize: '0.75rem' }}>{item}</span>
               ))}
             </div>
@@ -156,7 +176,6 @@ export default function Overview() {
 
       {/* ═══ Two Column: Clearance Summary + Payment Summary ═══ */}
       <div className="grid gap-4 md:grid-cols-2" style={{ marginBottom: '1.5rem' }}>
-        {/* Clearance Summary */}
         <Card>
           <div className="card-header">
             <h3 className="card-title" style={{ fontFamily: 'var(--font-body)' }}>Clearance Summary</h3>
@@ -171,7 +190,7 @@ export default function Overview() {
               <ProgressBar value={progressPercent} />
             </div>
             {clearances.map((c, i) => (
-              <div key={i} className="flex items-center justify-between" style={{ padding: '0.5rem 0', borderBottom: i < clearances.length - 1 ? '1px solid var(--border)' : 'none' }}>
+              <div key={i} className="flex items-center justify-between" style={{ padding: '0.375rem 0', borderBottom: i < clearances.length - 1 ? '1px solid var(--border)' : 'none' }}>
                 <div className="flex items-center" style={{ gap: '0.5rem' }}>
                   {c.status === 'cleared' ? <CheckCircle size={14} color="var(--success)" /> :
                    c.status === 'rejected' ? <XCircle size={14} color="var(--danger)" /> :
@@ -185,7 +204,6 @@ export default function Overview() {
           </div>
         </Card>
 
-        {/* Payment Summary */}
         <Card>
           <div className="card-header">
             <h3 className="card-title" style={{ fontFamily: 'var(--font-body)' }}>Payment Summary</h3>
@@ -221,8 +239,8 @@ export default function Overview() {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[
           { to: '/student/payment', icon: CreditCard, label: 'Make Payment', desc: unpaidFees.length > 0 ? `${unpaidFees.length} fees remaining` : 'All paid', color: 'var(--primary)' },
-          { to: '/student/clearance', icon: ClipboardList, label: 'Track Clearance', desc: `${clearedCount}/4 departments`, color: 'var(--info)' },
-          { to: '/student/certificate', icon: Award, label: 'Get Certificate', desc: progressPercent === 100 ? 'Ready to download' : 'Complete clearance first', color: 'var(--gold)', disabled: progressPercent < 100 },
+          { to: '/student/clearance', icon: ClipboardList, label: 'Track Clearance', desc: `${clearedCount}/${TOTAL_DEPTS} departments`, color: 'var(--info)' },
+          { to: allCleared && !bioVerified ? '/student/bio-verification' : '/student/certificate', icon: allCleared && !bioVerified ? UserCheck : Award, label: allCleared && !bioVerified ? 'Verify Bio-Data' : 'Get Certificate', desc: allCleared ? (bioVerified ? 'Ready to download' : 'Verify details first') : 'Complete clearance first', color: 'var(--gold)', disabled: !allCleared },
           { to: '/student/payment', icon: FileText, label: 'Payment History', desc: `${payments.length} transactions`, color: 'var(--text-secondary)' },
         ].map(action => (
           <Link key={action.label} to={action.to} style={{ textDecoration: 'none', opacity: action.disabled ? 0.5 : 1, pointerEvents: action.disabled ? 'none' : 'auto' }}>
