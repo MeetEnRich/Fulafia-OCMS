@@ -6,7 +6,7 @@ import { CheckCircle, Clock, XCircle, CreditCard, ArrowRight, Award, FileText, C
 import { Link } from 'react-router-dom';
 
 const TOTAL_DEPTS = 7;
-const FEE_TYPES = ['Convocation Fee', 'Library Processing Fee', 'Alumni Development Levy', 'Transcript Fee', 'Alumni Association Fee'];
+const FEE_TYPES = ['Convocation Fee', 'Clearance Processing Fee', 'Library Processing Fee', 'Alumni Association Fee'];
 
 export default function Overview() {
   const { user, showToast } = useApp();

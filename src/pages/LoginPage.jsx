@@ -107,6 +107,7 @@ export default function LoginPage() {
                 <button onClick={() => handleDemoLogin('FAC001', 'staff123')} className="badge badge--pending" style={{ cursor: 'pointer', border: '1px solid var(--warning)' }}>Faculty</button>
                 <button onClick={() => handleDemoLogin('CLN001', 'staff123')} className="badge badge--pending" style={{ cursor: 'pointer', border: '1px solid var(--warning)' }}>Clinic</button>
                 <button onClick={() => handleDemoLogin('HST001', 'staff123')} className="badge badge--pending" style={{ cursor: 'pointer', border: '1px solid var(--warning)' }}>Hostel</button>
+                <button onClick={() => handleDemoLogin('SA001', 'staff123')} className="badge badge--pending" style={{ cursor: 'pointer', border: '1px solid var(--warning)' }}>Student Affairs</button>
                 <button onClick={() => handleDemoLogin('ADMIN001', 'admin123')} className="badge badge--rejected" style={{ cursor: 'pointer', border: '1px solid var(--danger)' }}>Admin</button>
               </div>
             </div>

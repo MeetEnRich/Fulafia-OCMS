@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3';
+import { DatabaseSync } from 'node:sqlite';
 import bcrypt from 'bcryptjs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -8,10 +8,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 const dbPath = path.resolve(__dirname, '..', process.env.DB_PATH || './database.sqlite');
-const db = new Database(dbPath);
+const db = new DatabaseSync(dbPath);
 
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
+db.exec('PRAGMA journal_mode = WAL');
+db.exec('PRAGMA foreign_keys = ON');
 
 console.log('\n  Seeding FULafia OCMS Database (7-Department Architecture)...\n');
 
@@ -227,26 +227,24 @@ const insertPayment = db.prepare(
 // Chinedu — all fees paid
 insertPayment.run('2021/ENG/EEE/0043', 'FUL-K8R4WX-F1G3', 'Convocation Fee', 15000, '5421', 'success', '2026-04-17 09:10:00');
 insertPayment.run('2021/ENG/EEE/0043', 'FUL-K8R5YZ-H2J4', 'Library Processing Fee', 2000, '5421', 'success', '2026-04-17 09:15:00');
-insertPayment.run('2021/ENG/EEE/0043', 'FUL-A1B2C3-D4E5', 'Alumni Development Levy', 5000, '5421', 'success', '2026-04-17 09:20:00');
-insertPayment.run('2021/ENG/EEE/0043', 'FUL-F6G7H8-J9K0', 'Transcript Fee', 3000, '5421', 'success', '2026-04-17 09:25:00');
+insertPayment.run('2021/ENG/EEE/0043', 'FUL-A1B2C3-D4E5', 'Clearance Processing Fee', 5000, '5421', 'success', '2026-04-17 09:20:00');
 insertPayment.run('2021/ENG/EEE/0043', 'FUL-Q3R4S5-T6U7', 'Alumni Association Fee', 10000, '5421', 'success', '2026-04-17 09:30:00');
 
 // Amina — partial
 insertPayment.run('2021/CP/CSC/0042', 'FUL-M3N8KP-A2B4', 'Convocation Fee', 15000, '4532', 'success', '2026-04-19 14:20:00');
-insertPayment.run('2021/CP/CSC/0042', 'FUL-M3N9LQ-C5D7', 'Alumni Development Levy', 5000, '4532', 'success', '2026-04-19 14:25:00');
+insertPayment.run('2021/CP/CSC/0042', 'FUL-M3N9LQ-C5D7', 'Clearance Processing Fee', 5000, '4532', 'success', '2026-04-19 14:25:00');
 
 // Fatima — partial
 insertPayment.run('2020/CP/MIS/0018', 'FUL-P2T7AB-K5L8', 'Convocation Fee', 15000, '3789', 'success', '2026-04-21 16:00:00');
 
 // David — partial
 insertPayment.run('2021/SCI/PHY/0091', 'FUL-Q9U1CD-M7N0', 'Convocation Fee', 15000, '6234', 'success', '2026-04-24 11:30:00');
-insertPayment.run('2021/SCI/PHY/0091', 'FUL-Q9U2EF-P8R1', 'Transcript Fee', 3000, '6234', 'success', '2026-04-24 11:35:00');
+insertPayment.run('2021/SCI/PHY/0091', 'FUL-Q9U2EF-P8R1', 'Library Processing Fee', 2000, '6234', 'success', '2026-04-24 11:35:00');
 
 // Mtser — partial
 insertPayment.run('2021/CP/CSC/0076', 'FUL-X1Y2Z3-A4B5', 'Convocation Fee', 15000, '7890', 'success', '2026-05-01 10:00:00');
 insertPayment.run('2021/CP/CSC/0076', 'FUL-X1Y3Z4-C6D7', 'Library Processing Fee', 2000, '7890', 'success', '2026-05-01 10:05:00');
-insertPayment.run('2021/CP/CSC/0076', 'FUL-X1Y4Z5-E8F9', 'Alumni Development Levy', 5000, '7890', 'success', '2026-05-01 10:10:00');
-insertPayment.run('2021/CP/CSC/0076', 'FUL-X1Y5Z6-G0H1', 'Transcript Fee', 3000, '7890', 'success', '2026-05-01 10:15:00');
+insertPayment.run('2021/CP/CSC/0076', 'FUL-X1Y4Z5-E8F9', 'Clearance Processing Fee', 5000, '7890', 'success', '2026-05-01 10:10:00');
 
 console.log('  ✓ Payment records seeded');
 

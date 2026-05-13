@@ -83,3 +83,38 @@ export function getProfile(req, res) {
 
   return res.json({ user: profile });
 }
+
+/**
+ * PUT /api/auth/change-password
+ */
+export function changePassword(req, res) {
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ error: 'Current and new passwords are required.' });
+  }
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({ error: 'New password must be at least 6 characters.' });
+  }
+
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
+  if (!user) {
+    return res.status(404).json({ error: 'User not found.' });
+  }
+
+  const valid = bcrypt.compareSync(currentPassword, user.password_hash);
+  if (!valid) {
+    return res.status(401).json({ error: 'Current password is incorrect.' });
+  }
+
+  const newHash = bcrypt.hashSync(newPassword, 10);
+  db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(newHash, req.user.id);
+
+  // Audit log
+  db.prepare(
+    'INSERT INTO audit_log (actor_id, action, details) VALUES (?, ?, ?)'
+  ).run(user.user_id, 'PASSWORD_CHANGED', `${user.full_name} changed their password`);
+
+  return res.json({ message: 'Password changed successfully.' });
+}

@@ -75,9 +75,8 @@ export default function Payment() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[
               { name: 'Convocation Fee', amount: 15000 },
-              { name: 'Alumni Development Levy', amount: 5000 },
+              { name: 'Clearance Processing Fee', amount: 5000 },
               { name: 'Library Processing Fee', amount: 2000 },
-              { name: 'Transcript Fee', amount: 3000 },
               { name: 'Alumni Association Fee', amount: 10000 }
             ].map((fee) => (
               <Card key={fee.name} className="p-4" style={{ cursor: 'pointer', transition: 'transform 0.2s', padding: '1.5rem' }} onClick={() => handleSelectFee(fee.name, fee.amount)} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>

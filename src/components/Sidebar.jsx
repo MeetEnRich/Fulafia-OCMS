@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { LogOut, Home, CreditCard, CheckSquare, Award, Users, FileText, Activity, HelpCircle, ClipboardList, UserCheck } from 'lucide-react';
+import { LogOut, Home, CreditCard, CheckSquare, Award, Users, FileText, Activity, HelpCircle, ClipboardList, UserCheck, MessageSquare, Lock } from 'lucide-react';
 
 const ROLE_DISPLAY = {
   student: 'Student',
@@ -21,6 +21,7 @@ export default function Sidebar({ isOpen, isMobile, isCollapsed, onClose }) {
     { to: '/student/overview', icon: Home, label: 'Dashboard' },
     { to: '/student/payment', icon: CreditCard, label: 'Make Payment' },
     { to: '/student/clearance', icon: ClipboardList, label: 'Clearance Status' },
+    { to: '/student/tickets', icon: MessageSquare, label: 'My Tickets' },
     { to: '/student/bio-verification', icon: UserCheck, label: 'Bio-Data' },
     { to: '/student/certificate', icon: Award, label: 'Certificate' },
   ];
@@ -55,7 +56,7 @@ export default function Sidebar({ isOpen, isMobile, isCollapsed, onClose }) {
         overflowX: 'hidden'
       }}>
         {/* Brand */}
-        <div style={{ padding: '1.25rem', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '0.75rem', justifyContent: collapsedState ? 'center' : 'flex-start' }}>
+        <div style={{ height: '60px', padding: '0 1.25rem', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '0.75rem', justifyContent: collapsedState ? 'center' : 'flex-start' }}>
           <img src="/logo.png" alt="FULafia Logo" style={{ width: 36, height: 36, objectFit: 'contain', flexShrink: 0 }} />
           {!collapsedState && (
             <div>
@@ -88,6 +89,9 @@ export default function Sidebar({ isOpen, isMobile, isCollapsed, onClose }) {
           <a href="mailto:support@fulafia.edu.ng" className="nav-link" style={{ color: 'var(--text-muted)', fontSize: '0.75rem', justifyContent: collapsedState ? 'center' : 'flex-start', padding: collapsedState ? '0.75rem' : '0.625rem 1rem' }} title="Need Help?">
             <HelpCircle size={18} style={{ flexShrink: 0 }} /> {!collapsedState && 'Need Help?'}
           </a>
+          <NavLink to="/change-password" onClick={() => isMobile && onClose()} className="nav-link" style={{ color: 'var(--text-muted)', fontSize: '0.75rem', justifyContent: collapsedState ? 'center' : 'flex-start', padding: collapsedState ? '0.75rem' : '0.625rem 1rem' }} title="Change Password">
+            <Lock size={18} style={{ flexShrink: 0 }} /> {!collapsedState && 'Change Password'}
+          </NavLink>
           <button onClick={() => { logout(); onClose(); }} className="nav-link" style={{ width: '100%', color: 'var(--danger)', marginTop: '0.25rem', justifyContent: collapsedState ? 'center' : 'flex-start', padding: collapsedState ? '0.75rem' : '0.625rem 1rem' }} title="Logout">
             <LogOut size={18} style={{ flexShrink: 0 }} /> {!collapsedState && 'Logout'}
           </button>

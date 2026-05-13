@@ -9,6 +9,8 @@ import PaymentPage from './pages/student/Payment';
 import ClearancePage from './pages/student/Clearance';
 import CertificatePage from './pages/student/Certificate';
 import BioVerification from './pages/student/BioVerification';
+import MyTickets from './pages/student/MyTickets';
+import ChangePassword from './pages/ChangePassword';
 
 import StaffOverview from './pages/staff/Overview';
 import PendingRequests from './pages/staff/PendingRequests';
@@ -56,6 +58,7 @@ export default function App() {
           <Route path="student/clearance" element={<ProtectedRoute allowedRoles={['student']}><ClearancePage /></ProtectedRoute>} />
           <Route path="student/certificate" element={<ProtectedRoute allowedRoles={['student']}><CertificatePage /></ProtectedRoute>} />
           <Route path="student/bio-verification" element={<ProtectedRoute allowedRoles={['student']}><BioVerification /></ProtectedRoute>} />
+          <Route path="student/tickets" element={<ProtectedRoute allowedRoles={['student']}><MyTickets /></ProtectedRoute>} />
 
           {/* Staff Routes */}
           <Route path="staff/overview" element={<ProtectedRoute allowedRoles={STAFF_ROLES}><StaffOverview /></ProtectedRoute>} />
@@ -66,6 +69,9 @@ export default function App() {
           <Route path="admin/overview" element={<ProtectedRoute allowedRoles={['admin']}><AdminOverview /></ProtectedRoute>} />
           <Route path="admin/audit" element={<ProtectedRoute allowedRoles={['admin']}><AuditLog /></ProtectedRoute>} />
           <Route path="admin/users" element={<ProtectedRoute allowedRoles={['admin']}><UserManagement /></ProtectedRoute>} />
+
+          {/* Shared Routes */}
+          <Route path="change-password" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
 
         </Route>
         

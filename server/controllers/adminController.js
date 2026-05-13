@@ -4,6 +4,14 @@ import { CLEARANCE_DEPARTMENTS, TOTAL_DEPARTMENTS } from '../utils/helpers.js';
 
 const DEFAULT_PASSWORD = 'password123';
 
+// All fees a student must pay before certificate generation
+const REQUIRED_FEES = [
+  'Convocation Fee',
+  'Clearance Processing Fee',
+  'Library Processing Fee',
+  'Alumni Association Fee'
+];
+
 /**
  * GET /api/stats
  * Dashboard statistics for admin
@@ -233,6 +241,20 @@ export function getCertificate(req, res) {
     return res.status(400).json({
       error: 'You must verify your bio-data before downloading your certificate.',
       code: 'BIO_NOT_VERIFIED',
+    });
+  }
+
+  // Check all required payments are completed
+  const paidFees = db.prepare(
+    "SELECT fee_type FROM payments WHERE student_id = ? AND status = 'success'"
+  ).all(studentId).map(p => p.fee_type);
+
+  const unpaidFees = REQUIRED_FEES.filter(f => !paidFees.includes(f));
+  if (unpaidFees.length > 0) {
+    return res.status(400).json({
+      error: `You must complete all required payments before downloading your certificate. Unpaid: ${unpaidFees.join(', ')}.`,
+      code: 'PAYMENTS_INCOMPLETE',
+      unpaidFees,
     });
   }
 
