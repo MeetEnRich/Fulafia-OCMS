@@ -70,7 +70,7 @@ A full-stack web application that digitises the final-year student clearance wor
 ### Step 1 — Clone the Repository
 
 ```bash
-git clone https://github.com/<your-username>/fulafia-ocms.git
+git clone https://github.com/MeetEnRich/Fulafia-OCMS.git
 cd fulafia-ocms
 ```
 
